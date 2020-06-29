@@ -31,6 +31,6 @@ class QimenSdk extends Foundation
 
     public function verifySign(array $params, string $body)
     {
-        return $this->verifySign($params, $body);
+        return $this->api->verifySign($params, $body);
     }
 }
