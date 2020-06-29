@@ -49,7 +49,6 @@ class Api extends AbstractAPI
         $params['sign'] = $this->makeSign($params, $body);
         $url = $this->config['rootUrl'] . '?' . http_build_query($params);
         $response = $this->https_request($url, $body);
-        dd($response);
         return $response;
     }
 
