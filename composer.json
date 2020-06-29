@@ -1,0 +1,19 @@
+{
+  "name": "wored/qimensdk-sdk",
+  "description": "阿里奇门sdk",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "qiliu",
+      "email": "qiliuf@gmail.com"
+    }
+  ],
+  "require": {
+    "hanson/foundation-sdk": "3.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Wored\\QimenSdk\\": "src"
+    }
+  }
+}
