@@ -9,7 +9,7 @@ use Hanson\Foundation\Foundation;
  * Class QimenSdk
  * @package \Wored\QimenSdk
  *
- * @property \Wored\QimenSdk\Api $api
+ * @property Api $api
  */
 class QimenSdk extends Foundation
 {
@@ -27,10 +27,5 @@ class QimenSdk extends Foundation
     public function request(string $method, array $bodys = [], string $format = 'xml')
     {
         return $this->api->request($method, $bodys, $format);
-    }
-
-    public function verifySign(array $params, string $body)
-    {
-        return $this->api->verifySign($params, $body);
     }
 }
