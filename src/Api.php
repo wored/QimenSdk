@@ -73,6 +73,7 @@ class Api extends AbstractAPI
             'format' => 'json',
             'v' => '2.0',
             'partner_id' => $this->config['partner_id'] ?? '',
+            'customerId' => $this->config['customerId'] ?? ''
         ]);
         $all['sign'] = $this->makeSign($params);
 

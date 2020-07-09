@@ -24,8 +24,13 @@ class QimenSdk extends Foundation
         parent::__construct($config);
     }
 
-    public function request(string $method, array $bodys = [], string $format = 'xml')
+    public function request(string $apiName, array $params, string $httpMethod = 'post')
     {
-        return $this->api->request($method, $bodys, $format);
+        return $this->api->request($apiName, $params, $httpMethod);
+    }
+
+    public function verifySign(array $request)
+    {
+        return $this->verifySign($request);
     }
 }
