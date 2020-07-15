@@ -20,21 +20,45 @@ class Api extends AbstractAPI
 
     /**
      * 生成签名
-     * @param array $params
+     * @param array $allParams 所有请求参数
      * @return string
      */
-    private function makeSign(array $params): string
+    private function makeSign(array $allParams): string
     {
-        ksort($params);
+        ksort($allParams);
         $str = $this->config['app_secret'];
-        foreach ($params as $k => $v) {
-            if ($k != '' and $v != '' and $k != 'sign') {
+        foreach ($allParams as $k => $v) {
+            if ($k != '' and $v != '') {
                 $str .= $k . $v;
             }
         }
         $str .= $this->config['app_secret'];
 
         return strtoupper(md5($str));
+    }
+
+    /**
+     * 获取加入sign的公共请求参数
+     * @param string $apiName
+     * @param array $params 业务参数
+     * @return array
+     */
+    private function getCommonParams(string $apiName, array $params): array
+    {
+        $commonParams = [
+            'method' => $apiName,
+            'app_key' => $this->config['app_key'],
+            'target_app_key' => $this->config['target_app_key'] ?? '',
+            'sign_method' => 'md5',
+            'session' => $this->config['session'] ?? '',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'format' => 'json',
+            'v' => '2.0',
+            'partner_id' => $this->config['partner_id'] ?? '',
+        ];
+        $commonParams['sign'] = $this->makeSign(array_merge($commonParams, $params));
+
+        return $commonParams;
     }
 
     /**
@@ -55,34 +79,9 @@ class Api extends AbstractAPI
         return $this->makeSign($params) === $sign ? true : false;
     }
 
-
     /**
      * @param string $apiName
-     * @param array $params
-     * @return string
-     */
-    private function getUrl(string $apiName, array $params): string
-    {
-        $all = array_merge($params, [
-            'method' => $apiName,
-            'app_key' => $this->config['app_key'],
-            'target_app_key' => $this->config['target_app_key'] ?? '',
-            'sign_method' => 'md5',
-            'session' => $this->config['session'] ?? '',
-            'timestamp' => date('Y-m-d H:i:s'),
-            'format' => 'json',
-            'v' => '2.0',
-            'partner_id' => $this->config['partner_id'] ?? '',
-            'customerId' => $this->config['customerId'] ?? ''
-        ]);
-        $all['sign'] = $this->makeSign($params);
-
-        return $this->config['rootUrl'] . '?' . http_build_query($all);
-    }
-
-    /**
-     * @param string $apiName
-     * @param array $params
+     * @param array $params 业务参数
      * @param string $httpMethod 可以是post/get等等，具体根据接口文档进行选择
      * @return mixed
      */
@@ -92,7 +91,10 @@ class Api extends AbstractAPI
         $http->addMiddleware($this->headerMiddleware([
             'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
         ]));
-        $response = call_user_func([$http, $httpMethod], $this->getUrl($apiName, $params));
+        $commonParams = $this->getCommonParams($apiName, $params);
+        $url = $this->config['rootUrl'] . '?' . http_build_query($commonParams);
+
+        $response = call_user_func([$http, $httpMethod], [$url, $params]);
 
         return json_decode(strval($response->getBody()), true);
     }
